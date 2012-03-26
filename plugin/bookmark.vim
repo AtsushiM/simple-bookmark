@@ -1,48 +1,31 @@
 "AUTHOR:   Atsushi Mizoue <asionfb@gmail.com>
-"WEBSITE:  https://github.com/AtsushiM/FastProject.vim
+"WEBSITE:  https://github.com/AtsushiM/simple-bookmark.vim
 "VERSION:  0.9
 "LICENSE:  MIT
 
-let s:FastProject_BookmarkNo = 0
-let s:FastProject_BookmarkOpen = 0
+let g:simple_bookmark_PluginDir = expand('<sfile>:p:h:h').'/'
+let g:simple_bookmark_TemplateDir = g:simple_memo_PluginDir.'template/'
+let g:simple_bookmark_SubDir = g:simple_memo_PluginDir.'sub/'
 
-if !exists("g:FastProject_DefaultBookmark")
-    let g:FastProject_DefaultBookmark = '~FastProject-Bookmark~'
+if !exists("g:simple_bookmark_DefaultConfigDir")
+    let g:simple_bookmark_DefaultConfigDir = $HOME.'/.simple-bookmark/'
 endif
-if !exists("g:FastProject_BookmarkWindowSize")
-    let g:FastProject_BookmarkWindowSize = 'topleft 50vs'
+if !exists("g:simple_bookmark_DefaultBookmark")
+    let g:simple_bookmark_DefaultBookmark = '~Bookmark~'
+endif
+if !exists("g:simple_bookmark_BookmarkWindowSize")
+    let g:simple_bookmark_BookmarkWindowSize = 'topleft 50vs'
 endif
 
-let s:FastProject_DefaultBookmark = g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
-if !filereadable(s:FastProject_DefaultBookmark)
-    call system('cp '.g:FastProject_TemplateDir.g:FastProject_DefaultBookmark.' '.g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark)
+" config
+if !isdirectory(g:simple_bookmark_DefaultConfigDir)
+    call mkdir(g:simple_bookmark_DefaultConfigDir)
+endif
+let s:simple_bookmark_DefaultBookmark = g:simple_bookmark_DefaultConfigDir.g:simple_bookmark_DefaultBookmark
+if !filereadable(s:simple_bookmark_DefaultBookmark)
+    call system('cp '.g:simple_bookmark_TemplateDir.g:simple_bookmark_DefaultBookmark.' '.g:simple_bookmark_DefaultConfigDir.g:simple_bookmark_DefaultBookmark)
 endif
 
-function! s:FPBookmarkOpen()
-    exec g:FastProject_BookmarkWindowSize." ".g:FastProject_DefaultConfigDir.g:FastProject_DefaultBookmark
-    let s:FastProject_BookmarkOpen = 1
-    let s:FastProject_BookmarkNo = bufnr('%')
-endfunction
-function! s:FPBookmarkClose()
-    let s:FastProject_BookmarkOpen = 0
-    exec 'bw '.s:FastProject_BookmarkNo
-    winc p
-endfunction
-
-function! s:FPBookmark()
-    if s:FastProject_BookmarkOpen == 0
-        call s:FPBookmarkOpen()
-    else
-        call s:FPBookmarkClose()
-    endif
-endfunction
-command! FPBookmark call s:FPBookmark()
-
-function! s:FPSetBufMapBookmark()
-    set cursorline
-    nnoremap <buffer><silent> e :FPBrowse<CR>
-    nnoremap <buffer><silent> <CR> :FPBrowse<CR>
-    nnoremap <buffer><silent> q :call <SID>FPBookmarkClose()<CR>
-endfunction
-exec 'au BufRead '.g:FastProject_DefaultBookmark.' call <SID>FPSetBufMapBookmark()'
-exec 'au BufWinLeave '.g:FastProject_DefaultBookmark.' call <SID>FPBookmarkClose()'
+command! SBookmark call sbookmark#Bookmark()
+exec 'au BufRead '.g:simple_bookmark_DefaultBookmark.' call sbookmark#SetBufMapBookmark()'
+exec 'au BufWinLeave '.g:simple_bookmark_DefaultBookmark.' call sbookmark#BookmarkClose()'
